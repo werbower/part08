@@ -1,8 +1,10 @@
 import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 import { gql } from "graphql-tag"
+import { v1 as uuid } from 'uuid'
 
-const authors = [
+type AuthorData = {name: string, id: string, born?: number}
+let authors = [
   {
     name: "Robert Martin",
     id: "afa51ab0-344d-11e9-a414-719c6709cf3e",
@@ -44,7 +46,7 @@ const authors = [
 
 
 type BookData = { title: string, published: number, author: string, id: string, genres: string[] }
-const books: BookData[] = [
+let books: BookData[] = [
   {
     title: "Clean Code",
     published: 2008,
@@ -122,6 +124,16 @@ const typeDefs = gql`
     allBooks(author: String, genre: String): [Book]
     allAuthors: [Author]
   }
+  
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+  }
+
 `
 
 const resolvers = {
@@ -137,7 +149,7 @@ const resolvers = {
         filters.push((b: BookData) => b.author === args.author)
       if (args.genre)
         filters.push((b: BookData) => b.genres.includes(args.genre))
-      
+
       return books.filter(b => filters.every(f => f(b)))
     },
     allAuthors: () => {
@@ -148,6 +160,22 @@ const resolvers = {
       })
     }
   },
+  Mutation: {
+    addBook: (root: any, args: Omit<BookData, 'id'>)=> {
+      const bookId = uuid()
+      const newBook = {...args, id: bookId}
+      books = [...books, newBook]
+      
+      const author = authors.find(a => a.name == args.author)
+      if (!author){
+        const authorId = uuid()
+        const newAuthor = {id: authorId, name: args.author} as AuthorData
+        authors = [...authors, newAuthor]
+      }
+      
+      return newBook
+    }
+  }
 }
 
 const server = new ApolloServer({

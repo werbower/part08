@@ -3,7 +3,7 @@ import { startStandaloneServer } from "@apollo/server/standalone"
 import { gql } from "graphql-tag"
 import { v1 as uuid } from 'uuid'
 
-type AuthorData = {name: string, id: string, born?: number}
+type AuthorData = { name: string, id: string, born?: number }
 let authors = [
   {
     name: "Robert Martin",
@@ -106,6 +106,7 @@ const typeDefs = gql`
   type Author {
     id: ID
     name: String
+    born: Int
     bookCount: Int
   }
   
@@ -132,6 +133,11 @@ const typeDefs = gql`
       published: Int!
       genres: [String!]!
     ): Book
+
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
 
 `
@@ -161,19 +167,27 @@ const resolvers = {
     }
   },
   Mutation: {
-    addBook: (root: any, args: Omit<BookData, 'id'>)=> {
+    addBook: (root: any, args: Omit<BookData, 'id'>) => {
       const bookId = uuid()
-      const newBook = {...args, id: bookId}
+      const newBook = { ...args, id: bookId }
       books = [...books, newBook]
-      
+
       const author = authors.find(a => a.name == args.author)
-      if (!author){
+      if (!author) {
         const authorId = uuid()
-        const newAuthor = {id: authorId, name: args.author} as AuthorData
+        const newAuthor = { id: authorId, name: args.author } as AuthorData
         authors = [...authors, newAuthor]
       }
-      
+
       return newBook
+    },
+    editAuthor: (root: any, args: { name: string, setBornTo: number }) => {
+      const foundAuthor = authors.find(a=> a.name === args.name)
+      if (!foundAuthor) return
+
+      foundAuthor.born = args.setBornTo
+      authors = authors.map(a=> a.name === args.name ? foundAuthor: a)
+      return foundAuthor
     }
   }
 }

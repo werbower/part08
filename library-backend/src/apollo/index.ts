@@ -42,7 +42,9 @@ const authors = [
  * Sin embargo, por simplicidad, almacenaremos el nombre del autor en conexión con el libro
  */
 
-const books = [
+
+type BookData = { title: string, published: number, author: string, id: string, genres: string[] }
+const books: BookData[] = [
   {
     title: "Clean Code",
     published: 2008,
@@ -117,7 +119,7 @@ const typeDefs = gql`
     dummy: Int
     bookCount: Int
     authorCount: Int
-    allBooks(author: String): [Book]
+    allBooks(author: String, genre: String): [Book]
     allAuthors: [Author]
   }
 `
@@ -127,11 +129,16 @@ const resolvers = {
     dummy: () => 0,
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: (root: any, args: { author: string }) => {
-      if (!args.author)
+    allBooks: (root: any, args: { author: string, genre: string }) => {
+      if (!args.author && !args.genre)
         return books
-
-      return books.filter(b => b.author === args.author)
+      const filters: Array<(b: BookData) => boolean> = []
+      if (args.author)
+        filters.push((b: BookData) => b.author === args.author)
+      if (args.genre)
+        filters.push((b: BookData) => b.genres.includes(args.genre))
+      
+      return books.filter(b => filters.every(f => f(b)))
     },
     allAuthors: () => {
       return authors.map(a => {

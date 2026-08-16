@@ -1,7 +1,7 @@
 import { gql, InMemoryCache, type TypedDocumentNode } from "@apollo/client";
 import { HttpLink } from "@apollo/client";
 import { ApolloClient } from "@apollo/client"
-import type { AllAuthorsQueryQuery, AllBooksQueryQuery } from "../apollo/__generated__/graphql";
+import type { MutAddBookMutation, MutAddBookMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery } from "../apollo/__generated__/graphql";
 
 
 
@@ -12,8 +12,8 @@ export const clientApollo = new ApolloClient({
     cache: new InMemoryCache()
 })
 
-export const allAuthorsQuery: TypedDocumentNode<AllAuthorsQueryQuery> = gql`
-    query allAuthorsQuery {
+export const queryAllAuthors: TypedDocumentNode<QueryAllAuthorsQuery> = gql`
+    query queryAllAuthors {
         allAuthors {
             id
             name
@@ -23,9 +23,32 @@ export const allAuthorsQuery: TypedDocumentNode<AllAuthorsQueryQuery> = gql`
     }
 `
 
-export const allBooksQuery: TypedDocumentNode<AllBooksQueryQuery> = gql`
-    query allBooksQuery {
+export const queryAllBooks: TypedDocumentNode<QueryAllBooksQuery> = gql`
+    query queryAllBooks {
         allBooks {
+            title
+            published
+            author
+            id
+            genres
+        }
+    }
+`
+
+export const mutEditAuthor: TypedDocumentNode<MutEditAuthrorMutation, MutEditAuthrorMutationVariables> = gql`
+    mutation mutEditAuthror($name: String!, $setBornTo: Int!) {
+        editAuthor(name: $name, setBornTo: $setBornTo) {
+            id
+            name
+            born
+            bookCount
+        }
+    }
+`
+
+export const mutAddBook: TypedDocumentNode<MutAddBookMutation, MutAddBookMutationVariables> = gql`
+    mutation mutAddBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+        addBook(title: $title, author: $author, published: $published, genres: $genres) {
             title
             published
             author

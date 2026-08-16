@@ -1,11 +1,11 @@
 import { useQuery } from "@apollo/client/react"
-import { allBooksQuery } from "../../services/apollo.service"
+import {  queryAllBooks } from "../../services/apollo.service"
 
-export type BookData = { id: string, title: string, author: string, published: string }
+export type BookData = { id: string, title: string, author: string, published: number }
 
 
 const Books = () => {
-    const allBooksResult = useQuery(allBooksQuery)
+    const allBooksResult = useQuery(queryAllBooks)
 
     if (allBooksResult.loading)
         return (<div>...loading</div>)

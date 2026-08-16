@@ -6,3 +6,8 @@ export type AllAuthorsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllAuthorsQueryQuery = { allAuthors: Array<{ __typename: 'Author', id: string | null, name: string | null, born: number | null, bookCount: number | null } | null> | null };
+
+export type AllBooksQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllBooksQueryQuery = { allBooks: Array<{ __typename: 'Book', title: string | null, published: string | null, author: string | null, id: string | null, genres: Array<string | null> | null } | null> | null };

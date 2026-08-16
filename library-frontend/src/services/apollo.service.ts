@@ -1,7 +1,7 @@
 import { gql, InMemoryCache, type TypedDocumentNode } from "@apollo/client";
 import { HttpLink } from "@apollo/client";
 import { ApolloClient } from "@apollo/client"
-import type { AllAuthorsQueryQuery } from "../apollo/__generated__/graphql";
+import type { AllAuthorsQueryQuery, AllBooksQueryQuery } from "../apollo/__generated__/graphql";
 
 
 
@@ -19,6 +19,18 @@ export const allAuthorsQuery: TypedDocumentNode<AllAuthorsQueryQuery> = gql`
             name
             born
             bookCount
+        }
+    }
+`
+
+export const allBooksQuery: TypedDocumentNode<AllBooksQueryQuery> = gql`
+    query allBooksQuery {
+        allBooks {
+            title
+            published
+            author
+            id
+            genres
         }
     }
 `

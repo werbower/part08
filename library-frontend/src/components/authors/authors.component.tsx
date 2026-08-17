@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client/react"
 import { queryAllAuthors } from "../../services/apollo.service"
+import { UpdateAuthor } from "../update-author/update-author.component"
 
 export type AuthorData = {id: string, name: string, born: number, bookCount: number}
 
@@ -30,6 +31,8 @@ const Authors = () => {
           ))}
         </tbody>
       </table>
+
+      <UpdateAuthor />
     </div>
   )
 }

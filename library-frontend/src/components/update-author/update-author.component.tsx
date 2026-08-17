@@ -1,10 +1,12 @@
 import { useApolloClient, useMutation } from "@apollo/client/react"
 import type { CSSProperties, SubmitEvent } from "react"
 import { mutEditAuthor } from "../../services/apollo.service"
+import type { AuthorData } from "../authors/authors.component"
 
 type FormFields = { name: HTMLInputElement, born: HTMLInputElement }
+type UpdateAuthorProps = { authors: AuthorData[] }
 
-export const UpdateAuthor = () => {
+export const UpdateAuthor = ({ authors }: UpdateAuthorProps) => {
     const [updateAuthor] = useMutation(mutEditAuthor)
     const apolloClient = useApolloClient()
 
@@ -15,6 +17,8 @@ export const UpdateAuthor = () => {
         const result = await updateAuthor({ variables: { name, setBornTo: born } })
         if (result.data?.editAuthor)
             await apolloClient.clearStore()
+
+
 
     }
 
@@ -28,7 +32,14 @@ export const UpdateAuthor = () => {
         <form style={formStyle} onSubmit={handleFormSubmit}>
             <div className="row">
                 <label htmlFor="uacNameInput">name</label>
-                <input id="uacNameInput" name="name" />
+                <select id="uacNameInput" name="name">
+                    <option value=''>select name</option>
+                    {(authors?.length || 0) > 0 &&
+                        authors.map(a => (
+                            <option key={a.id} value={a.name}>{a.name}</option>
+                        ))}
+
+                </select>
             </div>
             <div className="row">
                 <label htmlFor="uacBornInput">born</label>

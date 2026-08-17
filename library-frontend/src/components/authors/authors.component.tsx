@@ -32,7 +32,7 @@ const Authors = () => {
         </tbody>
       </table>
 
-      <UpdateAuthor />
+      <UpdateAuthor {...{authors}}/>
     </div>
   )
 }

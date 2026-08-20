@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import { mongoUrl } from "../config.js"
-import { Author, Book, IAuthor, IBook } from "./models.js"
+import { Author, Book, IAuthor, IBook, IUser, User } from "./models.js"
+import { createToken, decodeToken } from "../services/jsonwebtoken.service.js"
 
 
 
@@ -9,12 +10,12 @@ export const connectDB = async () => {
     return mongoose.connect(mongoUrl, { family: 4 })
 }
 
-const createAuthor = async (author: Pick<IAuthor, 'name' | 'born'>) => {
+export const createAuthor = async (author: Pick<IAuthor, 'name' | 'born'>) => {
     const authorModel = new Author(author)
     return await authorModel.save()
 }
 
-const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
+export const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
     const foundAuthor = await Author.findOne({ name: book.author as string })
     let authorId = foundAuthor?._id.toString()
 
@@ -29,7 +30,7 @@ const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
     return newBook
 }
 
-const getBooks = async (author: string, genre: string) => {
+export const getBooks = async (author: string, genre: string) => {
     if (!author && !genre)
         return await Book.find().populate('author')
 
@@ -60,7 +61,7 @@ const getBooks = async (author: string, genre: string) => {
     ])
 }
 
-const getAuthors = async () => {
+export const getAuthors = async () => {
     return await Author.aggregate([
         {
             $lookup: {
@@ -74,15 +75,15 @@ const getAuthors = async () => {
     ])
 }
 
-const getBookCount = async () => {
+export const getBookCount = async () => {
     return await Book.estimatedDocumentCount()
 }
 
-const getAuthorCount = async () => {
+export const getAuthorCount = async () => {
     return await Author.estimatedDocumentCount()
 }
 
-const editAuthor = async (args: { name: string, setBornTo: number }) => {
+export const editAuthor = async (args: { name: string, setBornTo: number }) => {
     const found = await Author.findOne({ name: args.name })
     if (!found)
         return
@@ -92,11 +93,44 @@ const editAuthor = async (args: { name: string, setBornTo: number }) => {
 
 }
 
+export const createUser = async (args: IUser) => {
+    const newUser = new User(args)
+    return await newUser.save()
+}
+
+export const getUsers = async () => {
+    return await User.find()
+}
+
+export const login = async (args: { username: string, password: string }) => {
+    if(args.password !== 'secret')
+        return null
+
+    const foundUser = await User.findOne({ username: args.username })
+    if (!foundUser) return null
+
+    const token = createToken({ id: foundUser.id, username: foundUser.username })
+    return { value: token }
+}
+
+export const getUserFromAuthHeader = async (token: string): Promise<IUser|null> => {
+    const decoded = decodeToken(token)
+    if (!decoded) return null
+
+    const foundUser = await User.findById(decoded.id)
+    if (!foundUser) return null
+    
+    return foundUser.toJSON()
+}
+
+export const _resetDatabase = async()=> {     
+      await Author.deleteMany({})
+      await Book.deleteMany({})
+      await User.deleteMany({})
+      return true
+}
 
 
-
-
-export const mongoService = { createBook, createAuthor, getBooks, getAuthors, getBookCount, getAuthorCount, editAuthor }
 
 
 

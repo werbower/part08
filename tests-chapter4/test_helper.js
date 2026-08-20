@@ -1,0 +1,120 @@
+import { ApolloServer } from '../library-backend/node_modules/@apollo/server/dist/esm/index.js'
+
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from '../library-backend/node_modules/mongoose/index.js'
+
+import { typeDefs } from '../library-backend/src/apollo/schema.ts'
+import { resolvers } from '../library-backend/src/apollo/resolvers.ts'
+import { Author, Book, User } from '../library-backend/src/mongo/models.ts'
+
+process.env.JWT_SECRET = 'secret'
+
+const initialAuthors = [
+  { name: 'Robert Martin', born: 1952 },
+  { name: 'Martin Fowler', born: 1963 },
+  { name: 'Fyodor Dostoevsky', born: 1821 },
+]
+
+const initialBooks = [
+  {
+    title: 'Clean Code',
+    published: 2008,
+    authorName: 'Robert Martin',
+    genres: ['refactoring'],
+  },
+  {
+    title: 'Agile software development',
+    published: 2002,
+    authorName: 'Robert Martin',
+    genres: ['agile', 'patterns', 'design'],
+  },
+  {
+    title: 'Refactoring, edition 2',
+    published: 2018,
+    authorName: 'Martin Fowler',
+    genres: ['refactoring'],
+  },
+  {
+    title: 'Refactoring to patterns',
+    published: 2008,
+    authorName: 'Joshua Kerievsky',
+    genres: ['refactoring', 'patterns'],
+  },
+  {
+    title: 'Crime and punishment',
+    published: 1866,
+    authorName: 'Fyodor Dostoevsky',
+    genres: ['classic', 'crime'],
+  },
+]
+
+let mongoServer
+
+const setupDatabase = async () => {
+  mongoServer = await MongoMemoryServer.create()
+  const uri = mongoServer.getUri()
+  await mongoose.connect(uri)
+}
+
+const teardownDatabase = async () => {
+  await mongoose.connection.close()
+  if (mongoServer) {
+    await mongoServer.stop()
+  }
+}
+
+const seedDatabase = async () => {
+  await Author.deleteMany({})
+  await Book.deleteMany({})
+  await User.deleteMany({})
+
+  const authorDocs = {}
+  for (const authorData of initialAuthors) {
+    const author = new Author(authorData)
+    await author.save()
+    authorDocs[authorData.name] = author
+  }
+
+  for (const bookData of initialBooks) {
+    let author = authorDocs[bookData.authorName]
+    if (!author) {
+      author = new Author({ name: bookData.authorName })
+      await author.save()
+      authorDocs[bookData.authorName] = author
+    }
+
+    const book = new Book({
+      title: bookData.title,
+      published: bookData.published,
+      author: author._id,
+      genres: bookData.genres,
+    })
+    await book.save()
+  }
+}
+
+const createTestUser = async (
+  username = 'testuser',
+  favoriteGenre = 'refactoring',
+) => {
+  const user = new User({ username, favoriteGenre })
+  await user.save()
+  return user
+}
+
+const createServer = () => {
+  return new ApolloServer({ typeDefs, resolvers })
+}
+
+export default {
+  initialAuthors,
+  initialBooks,
+  setupDatabase,
+  teardownDatabase,
+  seedDatabase,
+  createTestUser,
+  createServer,
+  Author,
+  Book,
+  User,
+}

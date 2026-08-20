@@ -1,5 +1,34 @@
 import mongoose from "mongoose"
-import { Transform } from "node:stream"
+
+
+export interface IUser {
+    _id?: string
+    _v?: number
+
+    id?: string
+    username: string
+    favoriteGenre: string
+}
+
+const userSchema = new mongoose.Schema<IUser>({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        minlength: 4,
+    },
+
+    favoriteGenre: {
+        type: String,
+        required: true
+    },
+})
+
+userSchema.set("toJSON", {transform: (_doc, res)=> {
+    res.id = res._id = res._id.toString()
+}})
+
+export const User = mongoose.model('User', userSchema)
 
 export interface IAuthor {
     _id: string

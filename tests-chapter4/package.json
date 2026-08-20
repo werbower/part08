@@ -1,0 +1,15 @@
+{
+  "name": "library-backend-tests",
+  "version": "1.0.0",
+  "description": "Automated tests for Full Stack Open part8 library-backend",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test *.test.js"
+  },
+  "dependencies": {
+    "mongodb-memory-server": "^10.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.12"
+  }
+}

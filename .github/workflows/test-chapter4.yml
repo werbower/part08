@@ -1,0 +1,35 @@
+name: Test library-backend
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11 
+          
+      - name: Install library-backend dependencies
+        working-directory: library-backend
+        run: pnpm i
+
+      - name: Install test dependencies
+        working-directory: tests-chapter4
+        run: pnpm i
+
+      - name: Run tests
+        working-directory: tests-chapter4
+        run: pnpm test

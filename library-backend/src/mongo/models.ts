@@ -32,10 +32,10 @@ authorSchema.set("toJSON", {transform: (_doc, res)=> {
 export const Author = mongoose.model('Author', authorSchema)
 
 export interface IBook {
-    _id: string
-    _v: number
+    _id?: string
+    _v?: number
 
-    id: string
+    id?: string
     title: string
     published: number
     author?: IAuthor|string

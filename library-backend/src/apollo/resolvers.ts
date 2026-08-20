@@ -1,14 +1,16 @@
-import { v1 as uuid } from 'uuid'
+
 import { mongoService } from '../mongo/mongo.service.js'
 import { IAuthor, IBook } from '../mongo/models.js'
-import { it } from 'node:test'
 
-type AuthorData = { name: string, id: string, born?: number }
-type BookData = { title: string, published: number, authorId: string, id: string, genres: string[] }
+import mongoose from 'mongoose'
+import { GraphQLError } from 'graphql'
 
-type BookCreate = Omit<BookData, 'id' | 'authorId'> & { author: string }
 
-export const resolvers = {
+
+
+type BookCreate = Omit<IBook, 'id' |'_id' | '_v'>
+
+const resolversBase = {
     Query: {
         bookCount: () => mongoService.getBookCount(),
         authorCount: () => mongoService.getAuthorCount(),
@@ -45,4 +47,42 @@ export const resolvers = {
 
         }
     }
+}
+
+//error handler over the base resolver
+export const resolvers = Object.fromEntries(Object.entries(resolversBase).map(([key, val])=> {
+    return [key, Object.fromEntries(Object.entries(val).map(([k, v]) => [k, (...args: any) => errorHandler(v)(...args)]))]
+})) as any as typeof resolversBase
+
+     
+
+
+    const errorHandler = (fn: (...x: any) => any) => {
+    return async (...args: any) => {
+        try {
+            return await fn(...args)
+        } catch (err) {
+
+            if (err instanceof mongoose.Error.ValidationError) {
+                const messages = Object.entries(err.errors)
+                .map(([k, v])=> {
+                    return v.message || 'validation error'
+                })
+                throw new GraphQLError(messages.join('; '), {
+                    extensions: {code: 'validation error'}
+                })
+            }
+
+            if (err instanceof mongoose.mongo.MongoServerError && err.code==11000) {
+                throw new GraphQLError(err.message || 'not uniquie value', {
+                    extensions: {code: 'not unique value'}
+                })
+            }
+            
+            throw err
+        }
+
+    }
+
+
 }

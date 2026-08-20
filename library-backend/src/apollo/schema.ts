@@ -18,7 +18,6 @@ export const typeDefs = gql`
   }
 
   type Query {
-    dummy: Int
     bookCount: Int
     authorCount: Int
     allBooks(author: String, genre: String): [Book]

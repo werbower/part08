@@ -4,16 +4,17 @@ import { Author, Book, IAuthor, IBook } from "./models.js"
 
 
 
+
 export const connectDB = async () => {
     return mongoose.connect(mongoUrl, { family: 4 })
 }
 
-export const createAuthor = async (author: Pick<IAuthor, 'name' | 'born'>) => {
+const createAuthor = async (author: Pick<IAuthor, 'name' | 'born'>) => {
     const authorModel = new Author(author)
-    return authorModel.save()
+    return await authorModel.save()
 }
 
-export const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
+const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
     const foundAuthor = await Author.findOne({ name: book.author as string })
     let authorId = foundAuthor?._id.toString()
 
@@ -28,9 +29,9 @@ export const createBook = async (book: Omit<IBook, '_id' | '_v'>) => {
     return newBook
 }
 
-export const getBooks = async (author: string, genre: string) => {
+const getBooks = async (author: string, genre: string) => {
     if (!author && !genre)
-        return Book.find().populate('author')
+        return await Book.find().populate('author')
 
     const match = {}
     if (genre) {
@@ -41,11 +42,11 @@ export const getBooks = async (author: string, genre: string) => {
     }
 
     if (!author)
-        return Book.find(match).populate('author')
+        return await Book.find(match).populate('author')
 
 
 
-    return Book.aggregate([
+    return await Book.aggregate([
         {
             $lookup: {
                 from: 'authors',
@@ -59,8 +60,8 @@ export const getBooks = async (author: string, genre: string) => {
     ])
 }
 
-export const getAuthors = async () => {
-    return Author.aggregate([
+const getAuthors = async () => {
+    return await Author.aggregate([
         {
             $lookup: {
                 from: 'books',
@@ -74,25 +75,31 @@ export const getAuthors = async () => {
 }
 
 const getBookCount = async () => {
-    return Book.estimatedDocumentCount()
+    return await Book.estimatedDocumentCount()
 }
 
 const getAuthorCount = async () => {
-    return Author.estimatedDocumentCount()
+    return await Author.estimatedDocumentCount()
 }
 
 const editAuthor = async (args: { name: string, setBornTo: number }) => {
-    const found = await Author.findOne({name: args.name})
+    const found = await Author.findOne({ name: args.name })
     if (!found)
         return
 
     found.born = args.setBornTo
-    return found.save()
+    return await found.save()
 
 }
 
 
 
-export const mongoService = {
-    createBook, createAuthor, getBooks, getAuthors, getBookCount, getAuthorCount, editAuthor
-}
+
+
+export const mongoService = { createBook, createAuthor, getBooks, getAuthors, getBookCount, getAuthorCount, editAuthor }
+
+
+
+
+
+

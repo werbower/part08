@@ -28,7 +28,10 @@ export const queryAllBooks: TypedDocumentNode<QueryAllBooksQuery> = gql`
         allBooks {
             title
             published
-            author
+            author {
+                id
+                name
+            }
             id
             genres
         }
@@ -51,7 +54,10 @@ export const mutAddBook: TypedDocumentNode<MutAddBookMutation, MutAddBookMutatio
         addBook(title: $title, author: $author, published: $published, genres: $genres) {
             title
             published
-            author
+            author{
+                id
+                name
+            }
             id
             genres
         }

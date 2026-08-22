@@ -10,7 +10,7 @@ export type QueryAllAuthorsQuery = { allAuthors: Array<{ __typename: 'Author', i
 export type QueryAllBooksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type QueryAllBooksQuery = { allBooks: Array<{ __typename: 'Book', title: string | null, published: number | null, author: string | null, id: string | null, genres: Array<string | null> | null } | null> | null };
+export type QueryAllBooksQuery = { allBooks: Array<{ __typename: 'Book', title: string | null, published: number | null, id: string | null, genres: Array<string | null> | null, author: { __typename: 'Author', id: string | null, name: string | null } | null } | null> | null };
 
 export type MutEditAuthrorMutationVariables = Exact<{
   name: string;
@@ -28,4 +28,4 @@ export type MutAddBookMutationVariables = Exact<{
 }>;
 
 
-export type MutAddBookMutation = { addBook: { __typename: 'Book', title: string | null, published: number | null, author: string | null, id: string | null, genres: Array<string | null> | null } | null };
+export type MutAddBookMutation = { addBook: { __typename: 'Book', title: string | null, published: number | null, id: string | null, genres: Array<string | null> | null, author: { __typename: 'Author', id: string | null, name: string | null } | null } | null };

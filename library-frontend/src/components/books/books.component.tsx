@@ -1,21 +1,37 @@
 import { useQuery } from "@apollo/client/react"
-import {  queryAllBooks } from "../../services/apollo.service"
+import { queryAllBooks } from "../../services/apollo.service"
 import type { AuthorData } from "../authors/authors.component"
+import { useState } from "react"
 
-export type BookData = { id: string, title: string, author: AuthorData, published: number }
+export type BookData = { id: string, title: string, author: AuthorData, published: number, genres: string[] }
 
 
 const Books = () => {
     const allBooksResult = useQuery(queryAllBooks)
+    const [genre, setGenre] = useState<string>('')
 
+    const handleGenreSelect = (item: string) => {
+        const newGenre = item === genre ? '' : item
+        setGenre(newGenre)
+    }
+    
     if (allBooksResult.loading)
         return (<div>...loading</div>)
     
-    const books = (allBooksResult.data?.allBooks || []) as any as BookData[]
+    const filters: Array<(x: BookData) => boolean> = [() => true]
+    if (genre) {
+        filters.push((x) => (x.genres || []).includes(genre))
+    }
+
+    const books = ((allBooksResult.data?.allBooks || []) as any as BookData[])
+    .filter(b=> filters.every(f=> !!f(b)))
+    
+    const allGenres = Array.from(new Set(books.flatMap(x => x.genres || [])))
 
     return (
         <div>
             <h2>books</h2>
+            {!!genre && <div>in genre {genre}</div>}
 
             <table>
                 <tbody>
@@ -33,6 +49,12 @@ const Books = () => {
                     ))}
                 </tbody>
             </table>
+
+            <div className="buttons">
+                {allGenres.map(item => (
+                    <button key={item} onClick={() => handleGenreSelect(item)}>{item}</button>
+                ))}
+            </div>
         </div>
     )
 }

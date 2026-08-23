@@ -6,6 +6,9 @@ type TPage = 'authors' | 'books' | 'add' | 'login' | 'logout'
 export interface IAppStore {
     token?: string
     page: TPage
+    selectedGenre: string|undefined
+
+
     setToken: (x: string) => void
     setPage: (x: TPage) => void
 }
@@ -16,6 +19,7 @@ const getDefaultToken = () => localStorage.getItem(tokenKey) as string
 export const useAppStore = zu.create<IAppStore>()((set) => {
 
     return {
+        selectedGenre: '',
         page: 'authors',
         token: getDefaultToken(),
 

@@ -1,6 +1,7 @@
 import { useApolloClient, useMutation } from '@apollo/client/react'
 import { useState, type CSSProperties, type SubmitEvent } from 'react'
 import { mutAddBook } from '../../services/apollo.service'
+import { useAppStore } from '../../services/app.service'
 
 
 
@@ -14,8 +15,7 @@ const NewBook = () => {
 
   const aClient = useApolloClient()
   const [addBook] = useMutation(mutAddBook)
-
-
+  const setPage = useAppStore(x=> x.setPage)
 
   const submit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -23,13 +23,7 @@ const NewBook = () => {
     try {
       await addBook({ variables: { author, genres, title, published: +(published || 0) } })
       await aClient.clearStore()
-
-      setTitle('')
-      setPublished('')
-      setAuthor('')
-      setGenres([])
-      setGenre('')
-
+      setPage('books')
     } catch (err) {
       console.error('can not create book', err)
     }
@@ -71,6 +65,7 @@ const NewBook = () => {
           />
         </label>
         <label>
+          genre
           <input
             value={genre}
             onChange={({ target }) => setGenre(target.value)}

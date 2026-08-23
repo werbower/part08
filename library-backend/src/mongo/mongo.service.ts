@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { mongoUrl } from "../config.js"
+import 'dotenv/config'
 import { Author, Book, IAuthor, IBook, IUser, User } from "./models.js"
 import { createToken, decodeToken } from "../services/jsonwebtoken.service.js"
 
@@ -7,6 +7,7 @@ import { createToken, decodeToken } from "../services/jsonwebtoken.service.js"
 
 
 export const connectDB = async () => {
+    const mongoUrl = process.env.MONGODB_URI as string
     return mongoose.connect(mongoUrl, { family: 4 })
 }
 

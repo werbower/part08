@@ -13,8 +13,8 @@ const Books = () => {
     })
     
     const handleGenreSelect = (item: string) => {
-        const newGenre = item === genre ? '' : item
-        setGenre(newGenre)
+        if (item !==genre)
+            setGenre(item)
     }
     
     if (allBooksResult.loading)
@@ -26,7 +26,7 @@ const Books = () => {
     return (
         <div>
             <h2>books</h2>
-            {!!genre && <div>in genre {genre}</div>}
+            {!!genre && <div>in genre <b>{genre}</b></div>}
 
             <table>
                 <tbody>
@@ -49,6 +49,7 @@ const Books = () => {
                 {allGenres.map(item => (
                     <button key={item} onClick={() => handleGenreSelect(item)}>{item}</button>
                 ))}
+                <button onClick={() => handleGenreSelect('')}>all genres</button>
             </div>
         </div>
     )

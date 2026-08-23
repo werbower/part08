@@ -22,7 +22,7 @@ export const BooksRecommend = () => {
     return (
         <div>
             <h2>recommendations</h2>
-            <div>books in your favorite genre {me?.favoriteGenre}</div>
+            <div>books in your favorite genre <b>{me?.favoriteGenre}</b></div>
 
             <table>
                 <tbody>

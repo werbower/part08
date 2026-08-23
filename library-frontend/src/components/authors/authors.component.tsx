@@ -1,11 +1,13 @@
 import { useQuery } from "@apollo/client/react"
 import { queryAllAuthors } from "../../services/apollo.service"
 import { UpdateAuthor } from "../update-author/update-author.component"
+import { useAppStore } from "../../services/app.service"
 
 export type AuthorData = {id: string, name: string, born: number, bookCount: number}
 
 const Authors = () => {
   const allAuthorsResult = useQuery(queryAllAuthors)
+  const token = useAppStore(x=> x.token)
 
   if(allAuthorsResult.loading)
     return (<div>...loading</div>)
@@ -32,7 +34,7 @@ const Authors = () => {
         </tbody>
       </table>
 
-      <UpdateAuthor {...{authors}}/>
+      {!!token && <UpdateAuthor {...{authors}}/>}
     </div>
   )
 }

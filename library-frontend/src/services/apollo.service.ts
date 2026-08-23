@@ -1,16 +1,30 @@
 import { gql, InMemoryCache, type TypedDocumentNode } from "@apollo/client";
 import { HttpLink } from "@apollo/client";
 import { ApolloClient } from "@apollo/client"
-import type { MutAddBookMutation, MutAddBookMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery } from "../apollo/__generated__/graphql";
+import type { MulLoginMutation, MulLoginMutationVariables, MutAddBookMutation, MutAddBookMutationVariables, MutCreateUserMutation, MutCreateUserMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery } from "../apollo/__generated__/graphql";
 
+import { useAppStore } from "./app.service";
+import { ApolloLink } from "@apollo/client";
 
+const httpLink = new HttpLink({
+    uri: 'http://localhost:4000'
+})
+
+const authMiddleware = new ApolloLink((operation, forward) => {
+  const token = useAppStore.getState().token
+  operation.setContext({
+    headers: {
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  })
+  return forward(operation)
+})
 
 export const clientApollo = new ApolloClient({
-    link: new HttpLink({
-        uri: 'http://localhost:4000'
-    }),
-    cache: new InMemoryCache()
+  link: authMiddleware.concat(httpLink),
+  cache: new InMemoryCache(),
 })
+
 
 export const queryAllAuthors: TypedDocumentNode<QueryAllAuthorsQuery> = gql`
     query queryAllAuthors {
@@ -63,3 +77,23 @@ export const mutAddBook: TypedDocumentNode<MutAddBookMutation, MutAddBookMutatio
         }
     }
 `
+
+export const mulLogin: TypedDocumentNode<MulLoginMutation, MulLoginMutationVariables> = gql`
+    mutation mulLogin($username: String!, $password: String!) {
+        login(username: $username, password: $password){
+            value
+        }
+    }
+`
+
+export const mutCreateUser: TypedDocumentNode<MutCreateUserMutation, MutCreateUserMutationVariables> = gql`
+    mutation mutCreateUser($username: String!, $favoriteGenre: String!) {
+        createUser(username: $username, favoriteGenre: $favoriteGenre) {
+            id
+            username
+            favoriteGenre
+        }
+    }
+`
+
+

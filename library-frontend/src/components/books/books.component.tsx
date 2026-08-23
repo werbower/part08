@@ -7,9 +7,11 @@ export type BookData = { id: string, title: string, author: AuthorData, publishe
 
 
 const Books = () => {
-    const allBooksResult = useQuery(queryAllBooks)
     const [genre, setGenre] = useState<string>('')
-
+    const allBooksResult = useQuery(queryAllBooks,{
+        variables: {genre}
+    })
+    
     const handleGenreSelect = (item: string) => {
         const newGenre = item === genre ? '' : item
         setGenre(newGenre)
@@ -18,14 +20,7 @@ const Books = () => {
     if (allBooksResult.loading)
         return (<div>...loading</div>)
     
-    const filters: Array<(x: BookData) => boolean> = [() => true]
-    if (genre) {
-        filters.push((x) => (x.genres || []).includes(genre))
-    }
-
     const books = ((allBooksResult.data?.allBooks || []) as any as BookData[])
-    .filter(b=> filters.every(f=> !!f(b)))
-    
     const allGenres = Array.from(new Set(books.flatMap(x => x.genres || [])))
 
     return (

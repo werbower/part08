@@ -38,8 +38,8 @@ export const queryAllAuthors: TypedDocumentNode<QueryAllAuthorsQuery> = gql`
 `
 
 export const queryAllBooks: TypedDocumentNode<QueryAllBooksQuery> = gql`
-    query queryAllBooks {
-        allBooks {
+    query queryAllBooks($genre: String) {
+        allBooks(genre: $genre) {
             title
             published
             author {

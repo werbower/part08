@@ -12,6 +12,11 @@ export type QueryAllBooksQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type QueryAllBooksQuery = { allBooks: Array<{ __typename: 'Book', title: string, published: number, id: string, genres: Array<string>, author: { __typename: 'Author', id: string, name: string } } | null> | null };
 
+export type QueryMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type QueryMeQuery = { me: { __typename: 'User', username: string, favoriteGenre: string, id: string } | null };
+
 export type MutEditAuthrorMutationVariables = Exact<{
   name: string;
   setBornTo: number;

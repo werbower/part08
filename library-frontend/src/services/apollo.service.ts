@@ -1,7 +1,7 @@
 import { gql, InMemoryCache, type TypedDocumentNode } from "@apollo/client";
 import { HttpLink } from "@apollo/client";
 import { ApolloClient } from "@apollo/client"
-import type { MulLoginMutation, MulLoginMutationVariables, MutAddBookMutation, MutAddBookMutationVariables, MutCreateUserMutation, MutCreateUserMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery } from "../apollo/__generated__/graphql";
+import type { MulLoginMutation, MulLoginMutationVariables, MutAddBookMutation, MutAddBookMutationVariables, MutCreateUserMutation, MutCreateUserMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery, QueryMeQuery } from "../apollo/__generated__/graphql";
 
 import { useAppStore } from "./app.service";
 import { ApolloLink } from "@apollo/client";
@@ -48,6 +48,16 @@ export const queryAllBooks: TypedDocumentNode<QueryAllBooksQuery> = gql`
             }
             id
             genres
+        }
+    }
+`
+
+export const queryMe: TypedDocumentNode<QueryMeQuery> = gql`
+    query queryMe {
+        me {
+            username
+            favoriteGenre
+            id
         }
     }
 `

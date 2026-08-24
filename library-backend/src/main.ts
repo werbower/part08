@@ -3,4 +3,4 @@ import { connectDB } from "./mongo/mongo.service.js"
 
 
 await connectDB()
-await startApollo()
+await startApollo(4000)

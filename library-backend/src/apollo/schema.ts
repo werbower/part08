@@ -62,4 +62,8 @@ export const typeDefs = gql`
     _resetDatabase: Boolean
   }
 
+  type Subscription {
+    bookAdded: Book!
+  }
+
 `

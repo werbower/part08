@@ -5,6 +5,8 @@ import { IAuthor, IBook, IUser } from '../mongo/models.js'
 import mongoose from 'mongoose'
 import { GraphQLError } from 'graphql'
 import { AppoloContext } from './apollo.service.js'
+import { PubSub } from 'graphql-subscriptions'
+
 
 
 
@@ -18,6 +20,8 @@ const checkAuth = (context: AppoloContext) => {
         })
     return context.currentUser
 }
+
+const ps = new PubSub()
 
 const resolversBase = {
     Query: {
@@ -49,9 +53,14 @@ const resolversBase = {
     Mutation: {
         addBook: async (root: any, args: BookCreate, context: AppoloContext) => {
             checkAuth(context)
-
             const newBook = await mongoService.createBook(args)
-            return newBook.toJSON() as IBook
+            
+            ps.publish('addBookEvent', {
+                bookAdded: newBook
+            })
+
+            const newBookData = newBook.toJSON() as IBook
+            return newBookData
         },
         editAuthor: async (root: any, args: { name: string, setBornTo: number }, context: AppoloContext) => {
             checkAuth(context)
@@ -83,13 +92,20 @@ const resolversBase = {
     }
 }
 
+const subResolvers = {
+    Subscription: {
+        bookAdded: {
+            subscribe: ()=> ps.asyncIterableIterator(['addBookEvent'])
+        }
+    }
+}
+
 //error handler over the base resolver
-export const resolvers = Object.fromEntries(Object.entries(resolversBase).map(([key, val]) => {
+const resolversHendled = Object.fromEntries(Object.entries(resolversBase).map(([key, val]) => {
     return [key, Object.fromEntries(Object.entries(val).map(([k, v]) => [k, (...args: any) => errorHandler(v)(...args)]))]
 })) as any as typeof resolversBase
 
-
-
+export const resolvers = {...resolversHendled, ...subResolvers}
 
 const errorHandler = (fn: (...x: any) => any) => {
     return async (...args: any) => {

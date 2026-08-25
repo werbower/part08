@@ -1,4 +1,4 @@
-import { gql, InMemoryCache, type DocumentNode, type TypedDocumentNode } from "@apollo/client";
+import { gql, InMemoryCache, type TypedDocumentNode } from "@apollo/client";
 
 import { ApolloClient, HttpLink } from "@apollo/client"
 import type { BookAddedSubscription, MulLoginMutation, MulLoginMutationVariables, MutAddBookMutation, MutAddBookMutationVariables, MutCreateUserMutation, MutCreateUserMutationVariables, MutEditAuthrorMutation, MutEditAuthrorMutationVariables, QueryAllAuthorsQuery, QueryAllBooksQuery, QueryMeQuery } from "../apollo/__generated__/graphql";
@@ -8,6 +8,7 @@ import { ApolloLink } from "@apollo/client";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
+
 
 const httpLink = new HttpLink({
     uri: 'http://localhost:4000'
@@ -40,12 +41,10 @@ const splitLink = ApolloLink.split(({ query }) => {
 
 export const clientApollo = new ApolloClient({
     link: splitLink,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache()
 })
 
-
-
-export const subsBookAdded: TypedDocumentNode<BookAddedSubscription>  = gql`
+export const subsBookAdded: TypedDocumentNode<BookAddedSubscription> = gql`
     subscription bookAdded {
         bookAdded {
             title

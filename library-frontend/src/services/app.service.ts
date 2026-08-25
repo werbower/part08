@@ -1,16 +1,19 @@
-import { clientApollo, mulLogin, queryMe } from "./apollo.service"
+import { clientApollo, mulLogin } from "./apollo.service"
 import * as zu from 'zustand'
 
 type TPage = 'authors' | 'books' | 'add' | 'login' | 'logout' | 'recommend'
 
 export interface IAppStore {
+
     token?: string
     page: TPage
-    selectedGenre: string|undefined
+    selectedGenre: string | undefined
 
 
-    setToken: (x: string|undefined) => void
+    setToken: (x?: string) => void
     setPage: (x: TPage) => void
+
+    setSelectedGenre: (x: string | undefined) => void
 }
 
 const tokenKey = 'tokeyKey'
@@ -19,6 +22,7 @@ const getDefaultToken = () => localStorage.getItem(tokenKey) as string
 export const useAppStore = zu.create<IAppStore>()((set) => {
 
     return {
+
         selectedGenre: '',
         page: 'authors',
         token: getDefaultToken(),
@@ -32,13 +36,19 @@ export const useAppStore = zu.create<IAppStore>()((set) => {
             set(() => {
                 return { page }
             })
+        },
+
+        setSelectedGenre: (selectedGenre: string | undefined) => {
+            set(()=> ({selectedGenre}))
         }
+
+
     }
 })
 
-export const setLogin = (token: string|undefined) => {
-    
-    !token? localStorage.removeItem(tokenKey):localStorage.setItem(tokenKey, token)
+export const setLogin = (token: string | undefined) => {
+
+    !token ? localStorage.removeItem(tokenKey) : localStorage.setItem(tokenKey, token)
     useAppStore.getState().setToken(token)
 }
 
@@ -49,7 +59,7 @@ export const login = async (args: TLogin) => {
         mutation: mulLogin,
         variables: args
     })
-    
+
 
     const token = result.data?.login?.value as string
     await clientApollo.clearStore()
@@ -57,3 +67,5 @@ export const login = async (args: TLogin) => {
     return true
 
 }
+
+

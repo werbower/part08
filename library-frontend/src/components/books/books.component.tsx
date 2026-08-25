@@ -1,15 +1,21 @@
 import { useQuery } from "@apollo/client/react"
 import { queryAllBooks } from "../../services/apollo.service"
 import type { AuthorData } from "../authors/authors.component"
-import { useState } from "react"
+import { useAppStore } from "../../services/app.service"
+
 
 export type BookData = { id: string, title: string, author: AuthorData, published: number, genres: string[] }
 
 
 const Books = () => {
-    const [genre, setGenre] = useState<string>('')
+    const genre = useAppStore(x=> x.selectedGenre)
+    const setGenre = useAppStore(x=> x.setSelectedGenre)
+    
     const allBooksResult = useQuery(queryAllBooks,{
-        variables: {genre}
+        variables: {genre},
+        refetchOn: {
+            booksRefetch: true
+        } 
     })
     
     const handleGenreSelect = (item: string) => {

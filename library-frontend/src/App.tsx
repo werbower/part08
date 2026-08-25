@@ -1,26 +1,29 @@
 
 import Authors from './components/authors/authors.component'
-import Books from './components/books/books.component'
+import Books, { type BookData } from './components/books/books.component'
 import NewBook from './components/new-book/new-book.component'
 import { setLogin, useAppStore } from './services/app.service'
 import { Login } from './components/login/login.component'
 import { BooksRecommend } from './components/books-recommend/books-recommend.component'
-import { useSubscription } from '@apollo/client/react'
+import { useApolloClient, useSubscription } from '@apollo/client/react'
 import { subsBookAdded } from './services/apollo.service'
 
 
 
 const App = () => {
-  const page = useAppStore(x=> x.page)
-  const setPage = useAppStore(x=> x.setPage)
+  const page = useAppStore(x => x.page)
+  const setPage = useAppStore(x => x.setPage)
   const token = useAppStore(x => x.token)
-
+  const client = useApolloClient()
+  
   useSubscription(subsBookAdded, {
-    onData: ({data})=> {
-      console.log(data)
+    onData: ({ data }) => {
+      client.cache.evict({
+        id: 'ROOT_QUERY',
+        fieldName: 'allBooks',
+      })
+      
       window.alert(`added book ${data.data?.bookAdded.title} by ${data.data?.bookAdded.author.name}`)
-      
-      
     }
   })
 

@@ -5,14 +5,25 @@ import NewBook from './components/new-book/new-book.component'
 import { setLogin, useAppStore } from './services/app.service'
 import { Login } from './components/login/login.component'
 import { BooksRecommend } from './components/books-recommend/books-recommend.component'
+import { useSubscription } from '@apollo/client/react'
+import { subsBookAdded } from './services/apollo.service'
 
 
 
 const App = () => {
-  
   const page = useAppStore(x=> x.page)
   const setPage = useAppStore(x=> x.setPage)
   const token = useAppStore(x => x.token)
+
+  useSubscription(subsBookAdded, {
+    onData: ({data})=> {
+      console.log(data)
+      window.alert(`added book ${data.data?.bookAdded.title} by ${data.data?.bookAdded.author.name}`)
+      
+      
+    }
+  })
+
 
   function handleLogout() {
     setLogin(undefined)

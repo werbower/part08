@@ -2,12 +2,19 @@
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 /** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type BookAddedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BookAddedSubscription = { bookAdded: { __typename: 'Book', title: string, published: number, id: string, genres: Array<string>, author: { __typename: 'Author', id: string, name: string } } };
+
 export type QueryAllAuthorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type QueryAllAuthorsQuery = { allAuthors: Array<{ __typename: 'Author', id: string, name: string, born: number | null, bookCount: number | null } | null> | null };
 
-export type QueryAllBooksQueryVariables = Exact<{ [key: string]: never; }>;
+export type QueryAllBooksQueryVariables = Exact<{
+  genre?: string | null | undefined;
+}>;
 
 
 export type QueryAllBooksQuery = { allBooks: Array<{ __typename: 'Book', title: string, published: number, id: string, genres: Array<string>, author: { __typename: 'Author', id: string, name: string } } | null> | null };

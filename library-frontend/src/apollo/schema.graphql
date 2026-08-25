@@ -54,6 +54,9 @@ type Author {
       username: String!
       password: String!
     ): Token
-
     
+  }
+
+  type Subscription {
+    bookAdded: Book!
   }
